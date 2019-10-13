@@ -45,7 +45,7 @@ namespace Runner
 
                 var startedTask = StartTask(() =>
                {
-                   GetMethodByAttribute(instance, typeof(CaseSetupAttribute)).Invoke(instance, null);
+                   GetMethodByAttribute<CaseSetupAttribute>(instance).Invoke(instance, null);
                });
                 tasks.Add(startedTask);
             }
@@ -59,7 +59,7 @@ namespace Runner
 
                 var startedTask = StartTask(() =>
                {
-                   GetMethodByAttribute(instance, typeof(CaseTestAttribute)).Invoke(instance, null);
+                   GetMethodByAttribute< CaseTestAttribute>(instance).Invoke(instance, null);
                });
                 tasks.Add(startedTask);
             }
@@ -73,7 +73,7 @@ namespace Runner
 
                 var startedTask = StartTask(() =>
                {
-                   GetMethodByAttribute(instance, typeof(CaseTearDownAttribute)).Invoke(instance, null);
+                   GetMethodByAttribute< CaseTearDownAttribute>(instance).Invoke(instance, null);
                });
                 tasks.Add(startedTask);
             }
@@ -81,13 +81,12 @@ namespace Runner
             tearDownsFinished();
         }
 
-        private static System.Reflection.MethodInfo GetMethodByAttribute(
-            object instance, 
-            Type attributeType)
+        private static System.Reflection.MethodInfo GetMethodByAttribute<TAttribute>(
+            object instance) where TAttribute:Attribute
         {
             return instance.GetType()
                   .GetMethods()
-                  .Where(m => m.GetCustomAttributes(attributeType, false).Length >= 1)
+                  .Where(m => m.GetCustomAttributes(typeof(TAttribute), false).Length >= 1)
                   .Single();
         }
 
