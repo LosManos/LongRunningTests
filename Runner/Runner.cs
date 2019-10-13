@@ -38,23 +38,23 @@ namespace Runner
                 CaseInstances.Add(Activator.CreateInstance(caseClass));
             }
 
-            var tasks = ExecuteAllSetups();
+            var tasks = ExecuteAllSetups(CaseInstances);
             Task.WaitAll(tasks.ToArray());
             setupsFinished();
 
-            tasks = ExecuteAllTests();
+            tasks = ExecuteAllTests(CaseInstances);
             Task.WaitAll(tasks.ToArray());
             testsFinished();
 
-            tasks = ExecuteAllTearDowns();
+            tasks = ExecuteAllTearDowns(CaseInstances);
             Task.WaitAll(tasks.ToArray());
             tearDownsFinished();
         }
 
-        private IEnumerable<Task> ExecuteAllTearDowns()
+        private static IEnumerable<Task> ExecuteAllTearDowns(IEnumerable<object> caseInstances)
         {
             var tasks = new List<Task>();
-            foreach (var instance in CaseInstances)
+            foreach (var instance in caseInstances)
             {
 
                 var startedTask = StartTask(() =>
@@ -66,10 +66,10 @@ namespace Runner
             return tasks;
         }
 
-        private IEnumerable<Task> ExecuteAllTests()
+        private static IEnumerable<Task> ExecuteAllTests(IEnumerable<object> caseInstances)
         {
             var tasks = new List<Task>();
-            foreach (var instance in CaseInstances)
+            foreach (var instance in caseInstances)
             {
 
                 var startedTask = StartTask(() =>
@@ -81,10 +81,10 @@ namespace Runner
             return tasks;
         }
 
-        private IEnumerable<Task> ExecuteAllSetups()
+        private static IEnumerable<Task> ExecuteAllSetups(IEnumerable<object> caseInstances)
         {
             var tasks = new List<Task>();
-            foreach (var instance in CaseInstances)
+            foreach (var instance in caseInstances)
             {
 
                 var startedTask = StartTask(() =>
@@ -105,12 +105,7 @@ namespace Runner
                   .Single();
         }
 
-        private Task StartSetup(Case @case)
-        {
-            return StartTask(@case.Setup);
-        }
-
-        private Task StartTask(Action action)
+        private static Task StartTask(Action action)
         {
             var task = new Task(() =>
             {
