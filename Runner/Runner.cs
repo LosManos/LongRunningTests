@@ -38,47 +38,62 @@ namespace Runner
                 CaseInstances.Add(Activator.CreateInstance(caseClass));
             }
 
-            // Execute all Setups.
+            var tasks = ExecuteAllSetups();
+            Task.WaitAll(tasks.ToArray());
+            setupsFinished();
+
+            tasks = ExecuteAllTests();
+            Task.WaitAll(tasks.ToArray());
+            testsFinished();
+
+            tasks = ExecuteAllTearDowns();
+            Task.WaitAll(tasks.ToArray());
+            tearDownsFinished();
+        }
+
+        private IEnumerable<Task> ExecuteAllTearDowns()
+        {
             var tasks = new List<Task>();
             foreach (var instance in CaseInstances)
             {
 
                 var startedTask = StartTask(() =>
-               {
-                   GetMethodByAttribute<CaseSetupAttribute>(instance).Invoke(instance, null);
-               });
+                {
+                    GetMethodByAttribute<CaseTearDownAttribute>(instance).Invoke(instance, null);
+                });
                 tasks.Add(startedTask);
             }
-            Task.WaitAll(tasks.ToArray());
-            setupsFinished();
+            return tasks;
+        }
 
-            // Execute all Tests.
-            tasks = new List<Task>();
+        private IEnumerable<Task> ExecuteAllTests()
+        {
+            var tasks = new List<Task>();
             foreach (var instance in CaseInstances)
             {
 
                 var startedTask = StartTask(() =>
-               {
-                   GetMethodByAttribute< CaseTestAttribute>(instance).Invoke(instance, null);
-               });
+                {
+                    GetMethodByAttribute<CaseTestAttribute>(instance).Invoke(instance, null);
+                });
                 tasks.Add(startedTask);
             }
-            Task.WaitAll(tasks.ToArray());
-            testsFinished();
+            return tasks;
+        }
 
-            // Execute all TearDowns.
-            tasks = new List<Task>();
+        private IEnumerable<Task> ExecuteAllSetups()
+        {
+            var tasks = new List<Task>();
             foreach (var instance in CaseInstances)
             {
 
                 var startedTask = StartTask(() =>
-               {
-                   GetMethodByAttribute< CaseTearDownAttribute>(instance).Invoke(instance, null);
-               });
+                {
+                    GetMethodByAttribute<CaseSetupAttribute>(instance).Invoke(instance, null);
+                });
                 tasks.Add(startedTask);
             }
-            Task.WaitAll(tasks.ToArray());
-            tearDownsFinished();
+            return tasks;
         }
 
         private static System.Reflection.MethodInfo GetMethodByAttribute<TAttribute>(
