@@ -8,7 +8,6 @@ namespace Runner
 {
     public class Runner
     {
-        private readonly Suite _suite = new Suite();
         private readonly List<Type> _caseClasses = new List<Type>();
         internal readonly List<object> CaseInstances = new List<object>();
         private readonly Action setupsFinished;
@@ -113,38 +112,6 @@ namespace Runner
             });
             task.Start();
             return task;
-        }
-    }
-
-    public class Suite
-    {
-        public IList<Case> Cases;
-
-        public IEnumerable<Action> Setups {
-            get {
-                foreach( var @case in Cases)
-                {
-                    yield return @case.Setup;
-                }
-            }
-        }
-        
-        public Suite()
-        {
-            Cases = new List<Case>();
-        }
-    }
-
-    public class Case
-    {
-        public readonly Action Setup;
-        public readonly Action Test;
-        public readonly Action TearDown;
-        public Case(Action setup, Action test, Action tearDown)
-        {
-            Setup = setup;
-            Test = test;
-            TearDown = tearDown;
         }
     }
 }
