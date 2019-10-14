@@ -13,3 +13,5 @@ Say a database has to be setup. That should be done only once disregarding how m
 Common Setup and Teardown, like a  dependency, that has to be run once.
 
 Send data from (common) Setup to the test so the tests know what Ids are used for testing.
+
+Each test case can contain serveral tests.
