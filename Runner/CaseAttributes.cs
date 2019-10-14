@@ -13,4 +13,16 @@ namespace Runner
     public class CaseTearDownAttribute : Attribute
     {
     }
+
+    public class CaseDependenciesAttribute : Attribute
+    {
+    }
+
+    public class DependencySetupAttribute : Attribute
+    {
+    }
+
+    public class DependencyTearDownAttribute : Attribute
+    {
+    }
 }
