@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("RunnerTest")]
@@ -15,8 +16,8 @@ namespace Runner
         private readonly Action tearDownsFinished;
 
         public Runner(
-            Action setupsFinished, 
-            Action testsFinished, 
+            Action setupsFinished,
+            Action testsFinished,
             Action tearDownsFinished)
         {
             this.setupsFinished = setupsFinished;
@@ -55,10 +56,10 @@ namespace Runner
             var tasks = new List<Task>();
             foreach (var instance in caseInstances)
             {
-
                 var startedTask = StartTask(() =>
                 {
-                    GetMethodByAttribute<CaseTearDownAttribute>(instance).Invoke(instance, null);
+                    GetMethodByAttribute<CaseTearDownAttribute>(instance)
+                        .Invoke(instance, null);
                 });
                 tasks.Add(startedTask);
             }
@@ -70,10 +71,10 @@ namespace Runner
             var tasks = new List<Task>();
             foreach (var instance in caseInstances)
             {
-
                 var startedTask = StartTask(() =>
                 {
-                    GetMethodByAttribute<CaseTestAttribute>(instance).Invoke(instance, null);
+                    GetMethodByAttribute<CaseTestAttribute>(instance)
+                        .Invoke(instance, null);
                 });
                 tasks.Add(startedTask);
             }
@@ -85,18 +86,17 @@ namespace Runner
             var tasks = new List<Task>();
             foreach (var instance in caseInstances)
             {
-
                 var startedTask = StartTask(() =>
                 {
-                    GetMethodByAttribute<CaseSetupAttribute>(instance).Invoke(instance, null);
+                    GetMethodByAttribute<CaseSetupAttribute>(instance)
+                        .Invoke(instance, null);
                 });
                 tasks.Add(startedTask);
             }
             return tasks;
         }
 
-        private static System.Reflection.MethodInfo GetMethodByAttribute<TAttribute>(
-            object instance) where TAttribute:Attribute
+        private static MethodInfo GetMethodByAttribute<TAttribute>(object instance) where TAttribute : Attribute
         {
             return instance.GetType()
                   .GetMethods()
