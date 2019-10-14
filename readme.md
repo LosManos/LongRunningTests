@@ -8,11 +8,25 @@ Now if there are many such tests they all have a time out. No figure there is a 
 This framework tries to remedy some of this by running all setups and when they are finished all tests, followed by all teardown.
 Say a database has to be setup. That should be done only once disregarding how many tests are run. Some tests require the same test data. These should be added only for relevant tests.
 
+## More explanation
+
+Each test is a Case with Setup, Test and Teardown, run in this order.
+But no Test is run before all Setups in all Cases are run. In the same way all TearDowns are run after all Tests.
+
+Since several Cases can have the same Dependency, like records in a database or a fake listening service running, each Case can also have a dependency on a Dependency.
+If several Cases have dependency on the same Dependency only one such Dependency is used.
+This Dependency in turn has DependencySetup and DependencyTearDown. All DependencySetups are run before any Case Setup is run. All DependencyTearDowns are run after all Case Teardowns are run.
+
+### Life cycle
+All Dependency Setups are run.
+All Case Setups are run.
+All Case Tests are run.
+All Case TearDowns are run.
+All Dependency TearDowns are run.
+
 ## Future
 
-Common Setup and Teardown, like a  dependency, that has to be run once.
-
-Send data from (common) Setup to the test so the tests know what Ids are used for testing.
+Send data from (common) Setup to the test so the tests know what Ids are used for testing. Say the Dependency Setup creates records then the ids should be passed on to the Case for use.
 
 Each test case can contain serveral tests.
 
