@@ -46,20 +46,8 @@ namespace Runner
                 CaseInstances.Add(Activator.CreateInstance(caseClass));
             }
 
-            //  Figure out all dependencies.
-            var dependencyTypes = new List<Type>();
-            foreach (var instance in CaseInstances)
-            {
-                var dependencyProperty = GetPropertyByAttribute<CaseDependenciesAttribute>(instance);
-                if (dependencyProperty != null)
-                {
-                    var valueInProperty = dependencyProperty.GetValue(instance, null);
-                    var dependenciesInProperty = (Type[])valueInProperty;
-                    dependencyTypes.AddRange(dependenciesInProperty);
-                }
-            }
-            // Create instances of all DependencyTypes.
-            foreach( var dependencyClass in dependencyTypes.Distinct())
+            // Create instances of all DependencyClasses.
+            foreach (var dependencyClass in GetDependencyTypes(CaseInstances))
             {
                 DependencyInstances.Add(Activator.CreateInstance(dependencyClass));
             }
@@ -90,6 +78,11 @@ namespace Runner
             dependenciesTearDownsFinished();
         }
 
+        /// <summary>This method returns a list of all the Dependencies for all Cases.
+        /// As per present implementation the dependencies may be out of order.
+        /// </summary>
+        /// <param name="caseInstances"></param>
+        /// <returns></returns>
         private static IEnumerable<Task> ExecuteAllDependenciesSetups(IEnumerable<object> dependencyInstances)
         {
             var tasks = new List<Task>();
@@ -165,6 +158,20 @@ namespace Runner
             return tasks;
         }
 
+        private static IEnumerable<Type> GetDependencyTypes(IEnumerable<object> caseInstances)
+        {
+            var ret = new List<Type>();
+            foreach (var instance in caseInstances)
+            {
+                var valueInProperty = GetValueInPropertyByAttribute<CaseDependenciesAttribute, Type[]>(instance);
+                if (valueInProperty != default)
+                {
+                    ret.AddRange(valueInProperty);
+                }
+            }
+            return ret.Distinct();
+        }
+
         private static MethodInfo GetMethodByAttribute<TAttribute>(object instance) where TAttribute : Attribute
         {
             return instance.GetType()
@@ -179,6 +186,24 @@ namespace Runner
                   .GetProperties()
                   .Where(m => m.GetCustomAttributes(typeof(TAttribute), false).Length >= 1)
                   .SingleOrDefault();
+        }
+
+        /// <summary>This method returns the value of a property with a certain Attribute.
+        /// If there is no property with this Attribute found the default of TPropertyType is returned.
+        /// </summary>
+        /// <typeparam name="TAttribute">The Attribute class.</typeparam>
+        /// <typeparam name="TPropertyType">The type of the property.</typeparam>
+        /// <param name="instance">The instance of the class where the property resides.</param>
+        /// <returns></returns>
+        private static TPropertyType GetValueInPropertyByAttribute<TAttribute, TPropertyType>(object instance) where TAttribute : Attribute
+        {
+            var property = GetPropertyByAttribute<TAttribute>(instance);
+            var propertyInfo = GetPropertyByAttribute<CaseDependenciesAttribute>(instance);
+            if (propertyInfo != null)
+            {
+                return (TPropertyType)propertyInfo.GetValue(instance, null);
+            }
+            return default;
         }
 
         private static Task StartTask(Action action)
