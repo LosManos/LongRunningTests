@@ -11,35 +11,14 @@ namespace RunnerTest
         bool _testsHaveBeenRun = false;
         bool _tearDownsHaveBeenRun = false;
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1013:Public method should be marked as test", Justification = "<Pending>")]
-        public void OnSetupsFinished()
-        {
-            var instance = (RunAllInCaseCase)sut.CaseInstances.Single();
-            _setupsHaveBeenRun = instance.SetupHasBeenRun;
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1013:Public method should be marked as test", Justification = "<Pending>")]
-        public void OnTestsFinished()
-        {
-            var instance = (RunAllInCaseCase)sut.CaseInstances.Single();
-            _testsHaveBeenRun = instance.TestHasBeenRun;
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "xUnit1013:Public method should be marked as test", Justification = "<Pending>")]
-        public void OnTearDownsFinished()
-        {
-            var instance = (RunAllInCaseCase)sut.CaseInstances.Single();
-            _tearDownsHaveBeenRun = instance.TearDownHasBeenRun;
-        }
-
         [Fact]
         public void RunAllInCase()
         {
             sut = new Runner.Runner(
-                OnSetupsFinished, 
-                OnTestsFinished, 
-                OnTearDownsFinished, 
-                () => { }, 
+                OnSetupsFinished,
+                OnTestsFinished,
+                OnTearDownsFinished,
+                () => { },
                 () => { });
 
             sut.AddCase(
@@ -51,6 +30,24 @@ namespace RunnerTest
             //  Assert.
             new[] { _setupsHaveBeenRun, _testsHaveBeenRun, _tearDownsHaveBeenRun }.Should()
                 .AllBeEquivalentTo(true);
+        }
+
+        private void OnSetupsFinished()
+        {
+            var instance = (RunAllInCaseCase)sut.CaseInstances.Single();
+            _setupsHaveBeenRun = instance.SetupHasBeenRun;
+        }
+
+        private void OnTestsFinished()
+        {
+            var instance = (RunAllInCaseCase)sut.CaseInstances.Single();
+            _testsHaveBeenRun = instance.TestHasBeenRun;
+        }
+
+        private void OnTearDownsFinished()
+        {
+            var instance = (RunAllInCaseCase)sut.CaseInstances.Single();
+            _tearDownsHaveBeenRun = instance.TearDownHasBeenRun;
         }
     }
 }
