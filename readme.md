@@ -15,3 +15,5 @@ Common Setup and Teardown, like a  dependency, that has to be run once.
 Send data from (common) Setup to the test so the tests know what Ids are used for testing.
 
 Each test case can contain serveral tests.
+
+Make sure it works with async test methods.
